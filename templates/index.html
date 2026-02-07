@@ -2,140 +2,121 @@
 <html lang="ro">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Trading Dashboard PRO</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     
     <style>
         :root {
             --bg-dark: #0f172a;
-            --glass-surface: rgba(30, 41, 59, 0.6);
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --accent: #38bdf8; /* Albastru */
-            --win: #10b981;    /* Verde */
-            --loss: #f43f5e;   /* Roșu */
-            --excel: #1d6f42;  /* Verde Excel */
-            --text-main: #f1f5f9;
-            --text-muted: #94a3b8;
+            --glass-surface: rgba(30, 41, 59, 0.75); /* Mai opac pentru contrast */
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --accent: #38bdf8; --win: #10b981; --loss: #f43f5e;
+            --text-main: #f1f5f9; --text-muted: #94a3b8;
         }
 
-        * { box-sizing: border-box; outline: none; }
+        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
 
         body { 
             font-family: 'Inter', sans-serif; 
             background: radial-gradient(circle at top left, #1e1b4b, #0f172a);
             color: var(--text-main); 
-            margin: 0; 
+            margin: 0; padding-bottom: 80px; /* Spatiu pt butoane jos */
             min-height: 100vh;
             overflow-x: hidden;
         }
 
-        /* --- LOGIN SCREEN --- */
+        /* --- AUTH SCREEN --- */
         #auth-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             display: flex; justify-content: center; align-items: center;
             background: radial-gradient(circle at center, #1e293b 0%, #020617 100%);
-            z-index: 1000;
+            z-index: 1000; padding: 20px;
         }
-
         .auth-card {
-            background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(24px);
-            border: 1px solid var(--glass-border);
-            padding: 3rem;
-            border-radius: 24px;
-            width: 100%; max-width: 400px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            text-align: center;
-            animation: floatUp 0.8s ease-out;
+            background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(24px);
+            border: 1px solid var(--glass-border); padding: 2rem; border-radius: 24px;
+            width: 100%; max-width: 400px; text-align: center;
         }
-        @keyframes floatUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-        .auth-title { font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem; background: linear-gradient(to right, #fff, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .auth-subtitle { color: var(--text-muted); margin-bottom: 2rem; font-size: 0.9rem; }
-        .input-group { margin-bottom: 1.5rem; text-align: left; }
-        .input-label { display: block; color: var(--text-muted); font-size: 0.8rem; margin-bottom: 0.5rem; font-weight: 600; letter-spacing: 0.5px; }
-        
-        .modern-input {
-            width: 100%; padding: 12px 16px; background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--glass-border); border-radius: 12px; color: white; font-size: 1rem; transition: all 0.3s ease;
-        }
-        .modern-input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.1); }
-
-        .btn-auth {
-            width: 100%; padding: 14px; background: var(--accent); color: #0f172a; border: none; border-radius: 12px;
-            font-weight: 800; font-size: 1rem; cursor: pointer; transition: transform 0.2s;
-        }
-        .btn-auth:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -5px rgba(56, 189, 248, 0.4); }
-        .btn-link { background: none; border: none; color: var(--text-muted); margin-top: 1rem; cursor: pointer; font-size: 0.9rem; text-decoration: underline; }
+        .auth-title { font-size: 1.8rem; font-weight: 800; margin-bottom: 0.5rem; color: white; }
+        .modern-input { width: 100%; padding: 12px; background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border); border-radius: 12px; color: white; margin-bottom: 15px; }
+        .btn-auth { width: 100%; padding: 14px; background: var(--accent); color: #0f172a; border: none; border-radius: 12px; font-weight: 800; }
 
         /* --- DASHBOARD --- */
-        #dashboard { display: none; padding: 2rem; max-width: 1600px; margin: auto; }
+        #dashboard { display: none; padding: 15px; max-width: 1600px; margin: auto; }
 
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem; }
-        .brand { font-size: 1.5rem; font-weight: 800; display: flex; align-items: center; gap: 10px; }
-        .header-controls { display: flex; gap: 20px; align-items: center; }
+        /* Header Responsive */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 15px; }
+        .brand { font-size: 1.3rem; font-weight: 800; display: flex; align-items: center; gap: 8px; }
+        .header-controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+        
         .balance-config { display: flex; flex-direction: column; align-items: flex-end; }
-        .balance-label { font-size: 0.7rem; color: var(--text-muted); font-weight: bold; letter-spacing: 1px; margin-bottom: 4px; }
-        .balance-input { background: var(--glass-surface); border: 1px solid var(--glass-border); color: var(--accent); font-weight: 800; padding: 8px; border-radius: 8px; width: 120px; text-align: right; font-size: 1rem; }
-        .user-pill { background: var(--glass-surface); padding: 8px 16px; border-radius: 50px; font-size: 0.9rem; border: 1px solid var(--glass-border); display: flex; align-items: center; gap: 10px; }
-        .btn-logout { background: var(--loss); color: white; border: none; padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; cursor: pointer; font-weight: bold; }
+        .balance-label { font-size: 0.65rem; color: var(--text-muted); font-weight: bold; margin-bottom: 2px; }
+        .balance-input { background: var(--glass-surface); border: 1px solid var(--glass-border); color: var(--accent); font-weight: 800; padding: 6px 10px; border-radius: 8px; width: 100px; text-align: right; font-size: 0.9rem; }
+        
+        .user-pill { background: var(--glass-surface); padding: 6px 12px; border-radius: 50px; font-size: 0.8rem; border: 1px solid var(--glass-border); display: flex; align-items: center; gap: 8px; }
+        .btn-logout { background: var(--loss); color: white; border: none; padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: bold; }
 
-        /* Stats Grid */
-        .stats-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; margin-bottom: 3rem; }
+        /* Stats Grid - Responsive */
+        .stats-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; margin-bottom: 2rem; }
         .stat-card {
-            background: var(--glass-surface); backdrop-filter: blur(12px); border: 1px solid var(--glass-border); border-radius: 20px; padding: 24px;
-            display: flex; flex-direction: column; justify-content: center; transition: transform 0.3s;
+            background: var(--glass-surface); border: 1px solid var(--glass-border); border-radius: 16px; padding: 15px;
+            display: flex; flex-direction: column; justify-content: center; text-align: center;
         }
-        .stat-card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.1); }
-        .stat-val { font-size: 2rem; font-weight: 800; letter-spacing: -1px; margin-top: 10px; }
-        .stat-lbl { color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; }
+        .stat-val { font-size: 1.5rem; font-weight: 800; margin-top: 5px; }
+        .stat-lbl { color: var(--text-muted); font-size: 0.65rem; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; }
+
+        /* Table - Scroll Orizontal Fluid */
+        .table-glass { 
+            background: var(--glass-surface); border: 1px solid var(--glass-border); border-radius: 16px; 
+            overflow: hidden; padding: 5px; margin-bottom: 60px;
+        }
+        .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; max-height: 60vh; }
+        
+        table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 800px; /* Asigură că tabelul nu se strânge */ }
+        th { 
+            text-align: left; padding: 12px; color: var(--text-muted); font-size: 0.7rem; text-transform: uppercase; 
+            border-bottom: 1px solid var(--glass-border); position: sticky; top: 0; background: #131c31; z-index: 10;
+        }
+        td { padding: 12px; color: var(--text-main); font-size: 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.03); white-space: nowrap; }
+        
+        /* Input-uri Tabel */
+        .tbl-input { background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); color: white; padding: 6px; border-radius: 6px; width: 100%; font-size: 0.85rem; }
 
         /* Progress Bars */
-        .progress-wrapper { margin-top: 15px; }
-        .progress-meta { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px; }
-        .track { width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden; }
+        .track { width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; margin-top: 5px; }
         .fill { height: 100%; border-radius: 10px; width: 0%; transition: width 1s ease; }
 
-        /* Table */
-        .table-glass { background: var(--glass-surface); backdrop-filter: blur(12px); border: 1px solid var(--glass-border); border-radius: 24px; overflow: hidden; padding: 10px; margin-bottom: 80px;}
-        .table-scroll { overflow-x: auto; max-height: 600px; }
-        table { width: 100%; border-collapse: separate; border-spacing: 0; }
-        th { text-align: left; padding: 20px; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--glass-border); position: sticky; top: 0; background: rgba(15, 23, 42, 0.95); z-index: 10; }
-        td { padding: 16px 20px; color: var(--text-main); font-size: 0.95rem; border-bottom: 1px solid rgba(255,255,255,0.03); }
-        tr:last-child td { border-bottom: none; }
-        tr:hover td { background: rgba(255,255,255,0.03); }
-
-        /* Badges & Text */
-        .badge { padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; display: inline-block; }
-        .badge-buy { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
-        .badge-sell { background: rgba(244, 63, 94, 0.15); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.3); }
-        .win-txt { color: var(--win); text-shadow: 0 0 15px rgba(16, 185, 129, 0.3); font-weight: 700; }
+        /* Colors & Badges */
+        .win-txt { color: var(--win); font-weight: 700; }
         .loss-txt { color: var(--loss); font-weight: 700; }
-        .link-icon { text-decoration: none; font-size: 1.1rem; opacity: 0.7; transition: 0.2s; }
-        .link-icon:hover { opacity: 1; transform: scale(1.2); }
-
-        .tbl-input { background: transparent; border: 1px solid var(--glass-border); color: white; padding: 8px 12px; border-radius: 8px; width: 100%; font-family: inherit; font-size: 0.9rem; }
-        .tbl-input:focus { background: rgba(0,0,0,0.3); border-color: var(--accent); }
+        .badge { padding: 3px 8px; border-radius: 4px; font-weight: 700; font-size: 0.7rem; }
+        .badge-buy { background: rgba(56, 189, 248, 0.15); color: #38bdf8; }
+        .badge-sell { background: rgba(244, 63, 94, 0.15); color: #fb7185; }
 
         /* Floating Buttons */
-        .fab-container { position: fixed; bottom: 30px; right: 30px; display: flex; gap: 10px; z-index: 100; }
+        .fab-container { position: fixed; bottom: 20px; right: 20px; display: flex; gap: 8px; z-index: 100; align-items: flex-end; }
         .fab {
-            background: var(--accent); color: #0f172a; width: 60px; height: 60px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold; cursor: pointer;
-            box-shadow: 0 10px 30px rgba(56, 189, 248, 0.4); border: none; transition: transform 0.2s;
+            background: var(--accent); color: #0f172a; width: 55px; height: 55px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 1.8rem; font-weight: bold; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5); border: none;
         }
-        .fab:hover { transform: scale(1.1); }
-        
         .fab-secondary {
-            background: var(--glass-surface); border: 1px solid var(--glass-border); color: var(--text-muted);
-            width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 1.2rem; cursor: pointer; backdrop-filter: blur(10px); transition: 0.2s;
+            background: rgba(30, 41, 59, 0.9); border: 1px solid var(--glass-border); color: white;
+            width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 1rem; backdrop-filter: blur(5px); box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
-        .fab-secondary:hover { transform: scale(1.1); background: rgba(255,255,255,0.1); color: white; }
 
-        .btn-icon { background: none; border: none; cursor: pointer; font-size: 1.1rem; opacity: 0.6; transition: 0.2s; }
-        .btn-icon:hover { opacity: 1; transform: scale(1.1); }
+        /* MEDIA QUERIES PENTRU TELEFON */
+        @media (max-width: 768px) {
+            .header { flex-direction: column; align-items: stretch; gap: 20px; text-align: center; }
+            .brand { justify-content: center; margin-bottom: 10px; }
+            .header-controls { justify-content: space-between; width: 100%; }
+            .stats-container { grid-template-columns: 1fr 1fr; /* 2 coloane pe mobil */ }
+            #dashboard { padding: 10px; }
+            .stat-val { font-size: 1.2rem; }
+            .auth-card { padding: 1.5rem; }
+        }
     </style>
 </head>
 <body>
@@ -143,62 +124,52 @@
     <div id="auth-screen">
         <div class="auth-card">
             <div class="auth-title">Trading Dashboard</div>
-            <div class="auth-subtitle">Platforma ta de performanță</div>
+            <div style="color:#94a3b8; margin-bottom:20px; font-size:0.9rem;">Acces Mobil & Desktop</div>
             
-            <div class="input-group">
-                <label class="input-label">UTILIZATOR</label>
-                <input type="text" id="username" class="modern-input" placeholder="ex: trader1">
-            </div>
-            <div class="input-group">
-                <label class="input-label">PAROLA</label>
-                <input type="password" id="password" class="modern-input" placeholder="••••••••">
-            </div>
-            <p id="auth-msg" style="color: var(--loss); font-size: 0.85rem; min-height: 20px;"></p>
-            <button class="btn-auth" onclick="handleAuth()">INTRĂ ÎN CONT</button>
-            <button class="btn-link" onclick="toggleAuthMode()">Nu ai cont? Creează unul acum</button>
+            <input type="text" id="username" class="modern-input" placeholder="User">
+            <input type="password" id="password" class="modern-input" placeholder="Parola">
+            <p id="auth-msg" style="color: var(--loss); font-size: 0.8rem; min-height: 20px;"></p>
+
+            <button class="btn-auth" onclick="handleAuth()">LOGIN / REGISTER</button>
+            <div style="margin-top:15px; font-size:0.8rem; color:#94a3b8; cursor:pointer;" onclick="toggleAuthMode()" id="auth-switch-text">Nu ai cont? Creează unul</div>
         </div>
     </div>
 
     <div id="dashboard">
         <div class="header">
-            <div class="brand">🚀 Trading Dashboard <span style="font-size:0.8rem; opacity:0.5; font-weight:400;">PRO</span></div>
+            <div class="brand">🚀 Trading Dashboard</div>
             <div class="header-controls">
                 <div class="balance-config">
-                    <span class="balance-label">BALANȚA START</span>
+                    <span class="balance-label">BALANȚA</span>
                     <input type="number" id="start-balance" class="balance-input" value="10000" onchange="saveConfig()">
                 </div>
                 <div class="user-pill">
                     <span id="user-display">User</span>
-                    <button class="btn-logout" onclick="logout()">LOGOUT</button>
+                    <button class="btn-logout" onclick="logout()">EXIT</button>
                 </div>
             </div>
         </div>
 
         <div class="stats-container">
             <div class="stat-card">
-                <span class="stat-lbl">Balanță Curentă</span>
+                <span class="stat-lbl">Equity</span>
                 <span id="stat-equity" class="stat-val">$0.00</span>
             </div>
             <div class="stat-card">
-                <span class="stat-lbl">Profit / Pierdere (%)</span>
+                <span class="stat-lbl">P/L (%)</span>
                 <span id="stat-pl" class="stat-val">0.00%</span>
             </div>
             <div class="stat-card">
                 <span class="stat-lbl">Win Rate</span>
                 <span id="stat-wr" class="stat-val" style="color: var(--accent);">0%</span>
             </div>
-            <div class="stat-card" style="justify-content: space-between;">
-                <div><span class="stat-lbl">Obiective (-10% / +10%)</span></div>
-                <div>
-                    <div class="progress-wrapper">
-                        <div class="progress-meta"><span>Drawdown</span> <span id="dd-val">0%</span></div>
-                        <div class="track"><div id="dd-bar" class="fill" style="background: var(--loss);"></div></div>
-                    </div>
-                    <div class="progress-wrapper">
-                        <div class="progress-meta"><span>Target</span> <span id="pt-val">0%</span></div>
-                        <div class="track"><div id="pt-bar" class="fill" style="background: var(--win);"></div></div>
-                    </div>
+            <div class="stat-card" style="grid-column: span 2; text-align:left;"> 
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                    <span class="stat-lbl">DD: <span id="dd-val" style="color:white;">0%</span></span>
+                    <span class="stat-lbl">Target: <span id="pt-val" style="color:white;">0%</span></span>
                 </div>
+                <div class="track"><div id="dd-bar" class="fill" style="background: var(--loss);"></div></div>
+                <div class="track" style="margin-top:8px;"><div id="pt-bar" class="fill" style="background: var(--win);"></div></div>
             </div>
         </div>
 
@@ -207,15 +178,7 @@
                 <table>
                     <thead>
                         <tr>
-                            <th width="12%">Data</th>
-                            <th width="10%">Pereche</th>
-                            <th width="8%">Dir</th>
-                            <th width="8%">Risc</th>
-                            <th width="8%">RR</th>
-                            <th width="12%">P/L (%)</th>
-                            <th>Observații</th>
-                            <th width="5%">Link</th>
-                            <th width="5%"></th>
+                            <th>Data</th> <th>Pair</th> <th>Dir</th> <th>Risc</th> <th>RR</th> <th>P/L</th> <th>Obs</th> <th>Link</th> <th></th>
                         </tr>
                     </thead>
                     <tbody id="input-area"></tbody>
@@ -225,9 +188,9 @@
         </div>
         
         <div class="fab-container">
-            <button class="fab-secondary" onclick="exportExcel()" title="Export Excel">📊</button>
-            <button class="fab-secondary" onclick="addSeparator()" title="Start Lună Nouă">📅</button>
-            <button class="fab" onclick="showInputRow()" title="Adaugă Trade">+</button>
+            <button class="fab-secondary" onclick="exportExcel()" title="Excel">📊</button>
+            <button class="fab-secondary" onclick="addSeparator()" title="Lună">📅</button>
+            <button class="fab" onclick="showInputRow()" title="Adaugă">+</button>
         </div>
     </div>
 
@@ -236,23 +199,18 @@
     let token = localStorage.getItem('token'); 
     const API_URL = "/api";
 
+    /* CONFIG */
     let savedBalance = localStorage.getItem('startBalance');
     if(savedBalance) { document.getElementById('start-balance').value = savedBalance; }
-
-    function saveConfig() {
-        let val = document.getElementById('start-balance').value;
-        localStorage.setItem('startBalance', val);
-        loadTrades(); 
-    }
+    function saveConfig() { localStorage.setItem('startBalance', document.getElementById('start-balance').value); loadTrades(); }
 
     if(token) showDashboard();
 
+    /* AUTH */
     function toggleAuthMode() {
         isLoginMode = !isLoginMode;
-        document.querySelector('.auth-title').innerText = isLoginMode ? "Trading Dashboard" : "Creează Cont";
-        document.querySelector('.btn-auth').innerText = isLoginMode ? "INTRĂ ÎN CONT" : "ÎNREGISTRARE";
-        document.querySelector('.btn-link').innerText = isLoginMode ? "Nu ai cont? Creează unul acum" : "Ai deja cont? Loghează-te";
-        document.getElementById('auth-msg').innerText = "";
+        document.querySelector('.btn-auth').innerText = isLoginMode ? "LOGIN" : "REGISTER";
+        document.getElementById('auth-switch-text').innerText = isLoginMode ? "Nu ai cont? Creează unul" : "Ai cont? Loghează-te";
     }
 
     async function handleAuth() {
@@ -260,20 +218,13 @@
         const pass = document.getElementById('password').value;
         const msg = document.getElementById('auth-msg');
 
-        if(!user || !pass) { msg.innerText = "Te rog introdu user și parola."; return; }
+        if(!user || !pass) { msg.innerText = "Completează datele!"; return; }
         
-        const btn = document.querySelector('.btn-auth');
-        const originalText = btn.innerText;
-        btn.innerText = "Se procesează...";
         const endpoint = isLoginMode ? "/login" : "/register";
-        
         try {
-            const response = await fetch(API_URL + endpoint, {
-                method: 'POST', headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username: user, password: pass })
-            });
+            const response = await fetch(API_URL + endpoint, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ username: user, password: pass }) });
             const data = await response.json();
-            if(!response.ok) throw new Error(data.detail || "Eroare la server");
+            if(!response.ok) throw new Error(data.detail || "Eroare server");
 
             if(isLoginMode) {
                 localStorage.setItem('token', data.access_token);
@@ -281,10 +232,10 @@
                 token = data.access_token;
                 showDashboard();
             } else {
-                alert("Cont creat cu succes! Te poți loga.");
+                alert("Cont creat! Acum te poți loga.");
                 toggleAuthMode();
             }
-        } catch (err) { msg.innerText = err.message; } finally { btn.innerText = originalText; }
+        } catch (err) { msg.innerText = err.message; }
     }
 
     function showDashboard() {
@@ -293,51 +244,32 @@
         document.getElementById('user-display').innerText = localStorage.getItem('user');
         loadTrades();
     }
+    function logout() { localStorage.removeItem('token'); localStorage.removeItem('user'); location.reload(); }
 
-    function logout() {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        location.reload();
-    }
-
-    /* --- DATA LOGIC --- */
-    let allTradesCache = []; // Păstrăm datele pentru Excel
-
+    /* DATA */
+    let allTradesCache = [];
     async function loadTrades() {
         if(!token) return;
         const res = await fetch(API_URL + '/trades/', { headers: { 'Authorization': 'Bearer ' + token } });
         if(res.status === 401) { logout(); return; }
 
         const trades = await res.json();
-        allTradesCache = trades; // Salvăm pentru export
-
+        allTradesCache = trades;
         const body = document.getElementById('trade-body');
         body.innerHTML = '';
         
         let startBalance = parseFloat(document.getElementById('start-balance').value) || 10000;
         let equity = startBalance;
-        let totalPL = 0;
-        let wins = 0;
-        let tradeCount = 0;
+        let totalPL = 0; let wins = 0; let tradeCount = 0;
 
         trades.forEach(t => {
             let isImport = t.pair.toUpperCase() === "IMPORT";
             let isSeparator = t.pair === "SEPARATOR";
-
             if (!isSeparator) { totalPL += t.pl; equity += t.pl; }
             if (!isImport && !isSeparator) { tradeCount++; if (t.pl > 0) wins++; }
 
-            // SEPARATOR LUNA (MODIFICAT VIZUAL)
             if (isSeparator) {
-                body.innerHTML += `
-                    <tr>
-                        <td colspan="8" style="background: rgba(56, 189, 248, 0.1); text-align:center; color: var(--accent); font-weight: 800; letter-spacing: 2px; padding: 15px; border-top: 1px solid var(--glass-border); border-bottom: 1px solid var(--glass-border);">
-                            📅 ${t.obs}
-                        </td>
-                        <td style="background: rgba(56, 189, 248, 0.1); border-bottom: 1px solid var(--glass-border);">
-                            <button class="btn-icon" style="color:var(--loss);" onclick="deleteTrade(${t.id})">🗑</button>
-                        </td>
-                    </tr>`;
+                body.innerHTML += `<tr><td colspan="8" style="background:rgba(56,189,248,0.1);text-align:center;color:var(--accent);font-weight:800;letter-spacing:1px;padding:10px;">📅 ${t.obs}</td><td><button style="border:none;background:none;color:var(--loss);" onclick="deleteTrade(${t.id})">×</button></td></tr>`;
                 return;
             }
 
@@ -345,25 +277,23 @@
             let percent = (t.pl / startBalance) * 100;
             let plSign = percent > 0 ? '+' : '';
             let plClass = percent >= 0 ? 'win-txt' : (isImport ? 'text-muted' : 'loss-txt');
-            let plDisplay = `${plSign}${percent.toFixed(2)}%`;
-            let linkIcon = (t.link && t.link !== "#" && t.link.length > 5) ? `<a href="${t.link}" target="_blank" class="link-icon">🔗</a>` : `<span style="opacity:0.2;">🔗</span>`;
+            let linkIcon = (t.link && t.link.length > 5) ? `<a href="${t.link}" target="_blank" style="text-decoration:none">🔗</a>` : `<span style="opacity:0.2">🔗</span>`;
 
             body.innerHTML += `
                 <tr style="${isImport ? 'opacity:0.7; font-style:italic;' : ''}">
-                    <td style="color:var(--text-muted); font-size:0.9rem;">${t.date}</td>
-                    <td style="font-weight:700; color:white;">${t.pair}</td>
+                    <td style="color:#94a3b8;font-size:0.75rem;">${t.date.substring(5)}</td>
+                    <td style="font-weight:700;">${t.pair}</td>
                     <td>${badge}</td>
-                    <td style="color:var(--text-muted);">${t.risk}</td>
-                    <td style="color:var(--text-muted);">${t.rr}</td>
-                    <td class="${plClass}">${plDisplay}</td>
-                    <td style="color:var(--text-muted); font-style:italic;">${t.obs}</td>
+                    <td>${t.risk}</td>
+                    <td>${t.rr}</td>
+                    <td class="${plClass}">${plSign}${percent.toFixed(2)}%</td>
+                    <td style="font-size:0.8rem;color:#94a3b8;">${t.obs}</td>
                     <td style="text-align:center;">${linkIcon}</td>
-                    <td><button class="btn-icon" style="color:var(--loss);" onclick="deleteTrade(${t.id})">🗑</button></td>
-                </tr>
-            `;
+                    <td><button style="border:none;background:none;color:var(--loss);" onclick="deleteTrade(${t.id})">×</button></td>
+                </tr>`;
         });
 
-        document.getElementById('stat-equity').innerText = `$${equity.toLocaleString()}`;
+        document.getElementById('stat-equity').innerText = `$${equity.toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0})}`;
         let totalPLPercent = (totalPL / startBalance) * 100;
         let plSign = totalPLPercent > 0 ? '+' : '';
         document.getElementById('stat-pl').innerText = `${plSign}${totalPLPercent.toFixed(2)}%`;
@@ -374,34 +304,30 @@
 
         let growth = ((equity - startBalance) / startBalance) * 100;
         if(growth < 0) {
-            let p = Math.min(Math.abs(growth) * 10, 100);
-            document.getElementById('dd-bar').style.width = p + "%";
+            document.getElementById('dd-bar').style.width = Math.min(Math.abs(growth)*10, 100) + "%";
             document.getElementById('dd-val').innerText = growth.toFixed(2) + "%";
         } else {
-            let p = Math.min(growth * 10, 100);
-            document.getElementById('pt-bar').style.width = p + "%";
+            document.getElementById('pt-bar').style.width = Math.min(growth*10, 100) + "%";
             document.getElementById('pt-val').innerText = "+" + growth.toFixed(2) + "%";
         }
     }
 
+    /* ACTIONS */
     function showInputRow() {
         const area = document.getElementById('input-area');
         if(area.innerHTML) return;
         const today = new Date().toISOString().split('T')[0];
         area.innerHTML = `
-            <tr style="background: rgba(56, 189, 248, 0.1);">
-                <td><input id="n-date" type="date" value="${today}" class="tbl-input"></td>
-                <td><input id="n-pair" placeholder="EURUSD" class="tbl-input" style="text-transform:uppercase"></td>
+            <tr style="background:rgba(56,189,248,0.1);">
+                <td><input id="n-date" type="date" value="${today}" class="tbl-input" style="width:110px;"></td>
+                <td><input id="n-pair" placeholder="EURUSD" class="tbl-input" style="text-transform:uppercase;width:70px;"></td>
                 <td><select id="n-dir" class="tbl-input"><option>BUY</option><option>SELL</option></select></td>
-                <td><input id="n-risk" value="1%" class="tbl-input"></td>
-                <td><input id="n-rr" value="1:2" class="tbl-input"></td>
-                <td><input id="n-pl" type="number" placeholder="-100 ($)" class="tbl-input"></td>
-                <td><input id="n-obs" placeholder="Notițe..." class="tbl-input"></td>
-                <td><input id="n-link" placeholder="URL..." class="tbl-input"></td>
-                <td>
-                    <button class="btn-icon" style="color:var(--win); margin-right:5px;" onclick="saveNewTrade()">✓</button>
-                    <button class="btn-icon" style="color:var(--loss);" onclick="document.getElementById('input-area').innerHTML=''">✕</button>
-                </td>
+                <td><input id="n-risk" value="1%" class="tbl-input" style="width:40px;"></td>
+                <td><input id="n-rr" value="1:2" class="tbl-input" style="width:40px;"></td>
+                <td><input id="n-pl" type="number" placeholder="$" class="tbl-input" style="width:60px;"></td>
+                <td><input id="n-obs" placeholder="..." class="tbl-input"></td>
+                <td><input id="n-link" placeholder="URL" class="tbl-input"></td>
+                <td><button style="color:var(--win);border:none;background:none;font-size:1.2rem;" onclick="saveNewTrade()">✓</button></td>
             </tr>`;
     }
 
@@ -418,44 +344,22 @@
     }
 
     async function addSeparator() {
-        const monthNames = ["Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie", "Iulie", "August", "Septembrie", "Octombrie", "Noiembrie", "Decembrie"];
-        const currentMonth = monthNames[new Date().getMonth()];
-        const text = prompt("Numele Lunii:", currentMonth);
-        if(!text) return;
+        const m = ["Ian", "Feb", "Mar", "Apr", "Mai", "Iun", "Iul", "Aug", "Sep", "Oct", "Noi", "Dec"];
+        const txt = prompt("Lună:", m[new Date().getMonth()]);
+        if(!txt) return;
         await fetch(API_URL + '/trades/', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }, 
-        body: JSON.stringify({ date: "", pair: "SEPARATOR", direction: "-", risk: "-", rr: "-", pl: 0, obs: text, link: "" }) });
+        body: JSON.stringify({ date: "", pair: "SEPARATOR", direction: "-", risk: "-", rr: "-", pl: 0, obs: txt, link: "" }) });
         loadTrades();
     }
 
-    /* --- EXPORT EXCEL (CSV) --- */
     function exportExcel() {
-        if(!allTradesCache.length) { alert("Nu ai date de exportat!"); return; }
-        
-        let csvContent = "data:text/csv;charset=utf-8,";
-        csvContent += "Data,Pereche,Directie,Risc,RR,Profit/Pierdere ($),Observatii,Link\n"; // Header
-
-        allTradesCache.forEach(t => {
-            if(t.pair === "SEPARATOR") return; // Nu exportăm separatoarele
-            let row = `${t.date},${t.pair},${t.direction},${t.risk},${t.rr},${t.pl},"${t.obs}",${t.link}`;
-            csvContent += row + "\n";
-        });
-
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", "jurnal_trading.csv");
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        if(!allTradesCache.length) { alert("Nu ai date!"); return; }
+        let csv = "data:text/csv;charset=utf-8,Data,Pereche,Dir,Risc,RR,PL($),Obs,Link\n";
+        allTradesCache.forEach(t => { if(t.pair!=="SEPARATOR") csv += `${t.date},${t.pair},${t.direction},${t.risk},${t.rr},${t.pl},"${t.obs}",${t.link}\n`; });
+        const link = document.createElement("a"); link.href = encodeURI(csv); link.download = "jurnal.csv"; document.body.appendChild(link); link.click(); document.body.removeChild(link);
     }
 
-    async function deleteTrade(id) {
-        if(confirm("Ești sigur?")) {
-            await fetch(API_URL + `/trades/${id}`, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token } });
-            loadTrades();
-        }
-    }
+    async function deleteTrade(id) { if(confirm("Ștergi?")) { await fetch(API_URL + `/trades/${id}`, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token } }); loadTrades(); } }
 </script>
-
 </body>
 </html>
