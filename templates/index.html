@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Dashboard PRO</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --glass-surface: rgba(30, 41, 59, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --accent: #38bdf8; /* Albastru */
+            --win: #10b981;    /* Verde */
+            --loss: #f43f5e;   /* Roșu */
+            --excel: #1d6f42;  /* Verde Excel */
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+        }
+
+        * { box-sizing: border-box; outline: none; }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: radial-gradient(circle at top left, #1e1b4b, #0f172a);
+            color: var(--text-main); 
+            margin: 0; 
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* --- LOGIN SCREEN --- */
+        #auth-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            display: flex; justify-content: center; align-items: center;
+            background: radial-gradient(circle at center, #1e293b 0%, #020617 100%);
+            z-index: 1000;
+        }
+
+        .auth-card {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(24px);
+            border: 1px solid var(--glass-border);
+            padding: 3rem;
+            border-radius: 24px;
+            width: 100%; max-width: 400px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            animation: floatUp 0.8s ease-out;
+        }
+        @keyframes floatUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .auth-title { font-size: 2rem; font-weight: 800; margin-bottom: 0.5rem; background: linear-gradient(to right, #fff, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .auth-subtitle { color: var(--text-muted); margin-bottom: 2rem; font-size: 0.9rem; }
+        .input-group { margin-bottom: 1.5rem; text-align: left; }
+        .input-label { display: block; color: var(--text-muted); font-size: 0.8rem; margin-bottom: 0.5rem; font-weight: 600; letter-spacing: 0.5px; }
+        
+        .modern-input {
+            width: 100%; padding: 12px 16px; background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--glass-border); border-radius: 12px; color: white; font-size: 1rem; transition: all 0.3s ease;
+        }
+        .modern-input:focus { border-color: var(--accent); box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.1); }
+
+        .btn-auth {
+            width: 100%; padding: 14px; background: var(--accent); color: #0f172a; border: none; border-radius: 12px;
+            font-weight: 800; font-size: 1rem; cursor: pointer; transition: transform 0.2s;
+        }
+        .btn-auth:hover { transform: translateY(-2px); box-shadow: 0 10px 20px -5px rgba(56, 189, 248, 0.4); }
+        .btn-link { background: none; border: none; color: var(--text-muted); margin-top: 1rem; cursor: pointer; font-size: 0.9rem; text-decoration: underline; }
+
+        /* --- DASHBOARD --- */
+        #dashboard { display: none; padding: 2rem; max-width: 1600px; margin: auto; }
+
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 3rem; }
+        .brand { font-size: 1.5rem; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+        .header-controls { display: flex; gap: 20px; align-items: center; }
+        .balance-config { display: flex; flex-direction: column; align-items: flex-end; }
+        .balance-label { font-size: 0.7rem; color: var(--text-muted); font-weight: bold; letter-spacing: 1px; margin-bottom: 4px; }
+        .balance-input { background: var(--glass-surface); border: 1px solid var(--glass-border); color: var(--accent); font-weight: 800; padding: 8px; border-radius: 8px; width: 120px; text-align: right; font-size: 1rem; }
+        .user-pill { background: var(--glass-surface); padding: 8px 16px; border-radius: 50px; font-size: 0.9rem; border: 1px solid var(--glass-border); display: flex; align-items: center; gap: 10px; }
+        .btn-logout { background: var(--loss); color: white; border: none; padding: 6px 12px; border-radius: 20px; font-size: 0.75rem; cursor: pointer; font-weight: bold; }
+
+        /* Stats Grid */
+        .stats-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 24px; margin-bottom: 3rem; }
+        .stat-card {
+            background: var(--glass-surface); backdrop-filter: blur(12px); border: 1px solid var(--glass-border); border-radius: 20px; padding: 24px;
+            display: flex; flex-direction: column; justify-content: center; transition: transform 0.3s;
+        }
+        .stat-card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.1); }
+        .stat-val { font-size: 2rem; font-weight: 800; letter-spacing: -1px; margin-top: 10px; }
+        .stat-lbl { color: var(--text-muted); font-size: 0.75rem; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; }
+
+        /* Progress Bars */
+        .progress-wrapper { margin-top: 15px; }
+        .progress-meta { display: flex; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px; }
+        .track { width: 100%; height: 6px; background: rgba(255,255,255,0.05); border-radius: 10px; overflow: hidden; }
+        .fill { height: 100%; border-radius: 10px; width: 0%; transition: width 1s ease; }
+
+        /* Table */
+        .table-glass { background: var(--glass-surface); backdrop-filter: blur(12px); border: 1px solid var(--glass-border); border-radius: 24px; overflow: hidden; padding: 10px; margin-bottom: 80px;}
+        .table-scroll { overflow-x: auto; max-height: 600px; }
+        table { width: 100%; border-collapse: separate; border-spacing: 0; }
+        th { text-align: left; padding: 20px; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid var(--glass-border); position: sticky; top: 0; background: rgba(15, 23, 42, 0.95); z-index: 10; }
+        td { padding: 16px 20px; color: var(--text-main); font-size: 0.95rem; border-bottom: 1px solid rgba(255,255,255,0.03); }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: rgba(255,255,255,0.03); }
+
+        /* Badges & Text */
+        .badge { padding: 4px 10px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; display: inline-block; }
+        .badge-buy { background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); }
+        .badge-sell { background: rgba(244, 63, 94, 0.15); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.3); }
+        .win-txt { color: var(--win); text-shadow: 0 0 15px rgba(16, 185, 129, 0.3); font-weight: 700; }
+        .loss-txt { color: var(--loss); font-weight: 700; }
+        .link-icon { text-decoration: none; font-size: 1.1rem; opacity: 0.7; transition: 0.2s; }
+        .link-icon:hover { opacity: 1; transform: scale(1.2); }
+
+        .tbl-input { background: transparent; border: 1px solid var(--glass-border); color: white; padding: 8px 12px; border-radius: 8px; width: 100%; font-family: inherit; font-size: 0.9rem; }
+        .tbl-input:focus { background: rgba(0,0,0,0.3); border-color: var(--accent); }
+
+        /* Floating Buttons */
+        .fab-container { position: fixed; bottom: 30px; right: 30px; display: flex; gap: 10px; z-index: 100; }
+        .fab {
+            background: var(--accent); color: #0f172a; width: 60px; height: 60px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold; cursor: pointer;
+            box-shadow: 0 10px 30px rgba(56, 189, 248, 0.4); border: none; transition: transform 0.2s;
+        }
+        .fab:hover { transform: scale(1.1); }
+        
+        .fab-secondary {
+            background: var(--glass-surface); border: 1px solid var(--glass-border); color: var(--text-muted);
+            width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; cursor: pointer; backdrop-filter: blur(10px); transition: 0.2s;
+        }
+        .fab-secondary:hover { transform: scale(1.1); background: rgba(255,255,255,0.1); color: white; }
+
+        .btn-icon { background: none; border: none; cursor: pointer; font-size: 1.1rem; opacity: 0.6; transition: 0.2s; }
+        .btn-icon:hover { opacity: 1; transform: scale(1.1); }
+    </style>
+</head>
+<body>
+
+    <div id="auth-screen">
+        <div class="auth-card">
+            <div class="auth-title">Trading Dashboard</div>
+            <div class="auth-subtitle">Platforma ta de performanță</div>
+            
+            <div class="input-group">
+                <label class="input-label">UTILIZATOR</label>
+                <input type="text" id="username" class="modern-input" placeholder="ex: trader1">
+            </div>
+            <div class="input-group">
+                <label class="input-label">PAROLA</label>
+                <input type="password" id="password" class="modern-input" placeholder="••••••••">
+            </div>
+            <p id="auth-msg" style="color: var(--loss); font-size: 0.85rem; min-height: 20px;"></p>
+            <button class="btn-auth" onclick="handleAuth()">INTRĂ ÎN CONT</button>
+            <button class="btn-link" onclick="toggleAuthMode()">Nu ai cont? Creează unul acum</button>
+        </div>
+    </div>
+
+    <div id="dashboard">
+        <div class="header">
+            <div class="brand">🚀 Trading Dashboard <span style="font-size:0.8rem; opacity:0.5; font-weight:400;">PRO</span></div>
+            <div class="header-controls">
+                <div class="balance-config">
+                    <span class="balance-label">BALANȚA START</span>
+                    <input type="number" id="start-balance" class="balance-input" value="10000" onchange="saveConfig()">
+                </div>
+                <div class="user-pill">
+                    <span id="user-display">User</span>
+                    <button class="btn-logout" onclick="logout()">LOGOUT</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="stats-container">
+            <div class="stat-card">
+                <span class="stat-lbl">Balanță Curentă</span>
+                <span id="stat-equity" class="stat-val">$0.00</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-lbl">Profit / Pierdere (%)</span>
+                <span id="stat-pl" class="stat-val">0.00%</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-lbl">Win Rate</span>
+                <span id="stat-wr" class="stat-val" style="color: var(--accent);">0%</span>
+            </div>
+            <div class="stat-card" style="justify-content: space-between;">
+                <div><span class="stat-lbl">Obiective (-10% / +10%)</span></div>
+                <div>
+                    <div class="progress-wrapper">
+                        <div class="progress-meta"><span>Drawdown</span> <span id="dd-val">0%</span></div>
+                        <div class="track"><div id="dd-bar" class="fill" style="background: var(--loss);"></div></div>
+                    </div>
+                    <div class="progress-wrapper">
+                        <div class="progress-meta"><span>Target</span> <span id="pt-val">0%</span></div>
+                        <div class="track"><div id="pt-bar" class="fill" style="background: var(--win);"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="table-glass">
+            <div class="table-scroll">
+                <table>
+                    <thead>
+                        <tr>
+                            <th width="12%">Data</th>
+                            <th width="10%">Pereche</th>
+                            <th width="8%">Dir</th>
+                            <th width="8%">Risc</th>
+                            <th width="8%">RR</th>
+                            <th width="12%">P/L (%)</th>
+                            <th>Observații</th>
+                            <th width="5%">Link</th>
+                            <th width="5%"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="input-area"></tbody>
+                    <tbody id="trade-body"></tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="fab-container">
+            <button class="fab-secondary" onclick="exportExcel()" title="Export Excel">📊</button>
+            <button class="fab-secondary" onclick="addSeparator()" title="Start Lună Nouă">📅</button>
+            <button class="fab" onclick="showInputRow()" title="Adaugă Trade">+</button>
+        </div>
+    </div>
+
+<script>
+    let isLoginMode = true;
+    let token = localStorage.getItem('token'); 
+    const API_URL = "/api";
+
+    let savedBalance = localStorage.getItem('startBalance');
+    if(savedBalance) { document.getElementById('start-balance').value = savedBalance; }
+
+    function saveConfig() {
+        let val = document.getElementById('start-balance').value;
+        localStorage.setItem('startBalance', val);
+        loadTrades(); 
+    }
+
+    if(token) showDashboard();
+
+    function toggleAuthMode() {
+        isLoginMode = !isLoginMode;
+        document.querySelector('.auth-title').innerText = isLoginMode ? "Trading Dashboard" : "Creează Cont";
+        document.querySelector('.btn-auth').innerText = isLoginMode ? "INTRĂ ÎN CONT" : "ÎNREGISTRARE";
+        document.querySelector('.btn-link').innerText = isLoginMode ? "Nu ai cont? Creează unul acum" : "Ai deja cont? Loghează-te";
+        document.getElementById('auth-msg').innerText = "";
+    }
+
+    async function handleAuth() {
+        const user = document.getElementById('username').value;
+        const pass = document.getElementById('password').value;
+        const msg = document.getElementById('auth-msg');
+
+        if(!user || !pass) { msg.innerText = "Te rog introdu user și parola."; return; }
+        
+        const btn = document.querySelector('.btn-auth');
+        const originalText = btn.innerText;
+        btn.innerText = "Se procesează...";
+        const endpoint = isLoginMode ? "/login" : "/register";
+        
+        try {
+            const response = await fetch(API_URL + endpoint, {
+                method: 'POST', headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: user, password: pass })
+            });
+            const data = await response.json();
+            if(!response.ok) throw new Error(data.detail || "Eroare la server");
+
+            if(isLoginMode) {
+                localStorage.setItem('token', data.access_token);
+                localStorage.setItem('user', user);
+                token = data.access_token;
+                showDashboard();
+            } else {
+                alert("Cont creat cu succes! Te poți loga.");
+                toggleAuthMode();
+            }
+        } catch (err) { msg.innerText = err.message; } finally { btn.innerText = originalText; }
+    }
+
+    function showDashboard() {
+        document.getElementById('auth-screen').style.display = 'none';
+        document.getElementById('dashboard').style.display = 'block';
+        document.getElementById('user-display').innerText = localStorage.getItem('user');
+        loadTrades();
+    }
+
+    function logout() {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        location.reload();
+    }
+
+    /* --- DATA LOGIC --- */
+    let allTradesCache = []; // Păstrăm datele pentru Excel
+
+    async function loadTrades() {
+        if(!token) return;
+        const res = await fetch(API_URL + '/trades/', { headers: { 'Authorization': 'Bearer ' + token } });
+        if(res.status === 401) { logout(); return; }
+
+        const trades = await res.json();
+        allTradesCache = trades; // Salvăm pentru export
+
+        const body = document.getElementById('trade-body');
+        body.innerHTML = '';
+        
+        let startBalance = parseFloat(document.getElementById('start-balance').value) || 10000;
+        let equity = startBalance;
+        let totalPL = 0;
+        let wins = 0;
+        let tradeCount = 0;
+
+        trades.forEach(t => {
+            let isImport = t.pair.toUpperCase() === "IMPORT";
+            let isSeparator = t.pair === "SEPARATOR";
+
+            if (!isSeparator) { totalPL += t.pl; equity += t.pl; }
+            if (!isImport && !isSeparator) { tradeCount++; if (t.pl > 0) wins++; }
+
+            // SEPARATOR LUNA (MODIFICAT VIZUAL)
+            if (isSeparator) {
+                body.innerHTML += `
+                    <tr>
+                        <td colspan="8" style="background: rgba(56, 189, 248, 0.1); text-align:center; color: var(--accent); font-weight: 800; letter-spacing: 2px; padding: 15px; border-top: 1px solid var(--glass-border); border-bottom: 1px solid var(--glass-border);">
+                            📅 ${t.obs}
+                        </td>
+                        <td style="background: rgba(56, 189, 248, 0.1); border-bottom: 1px solid var(--glass-border);">
+                            <button class="btn-icon" style="color:var(--loss);" onclick="deleteTrade(${t.id})">🗑</button>
+                        </td>
+                    </tr>`;
+                return;
+            }
+
+            let badge = t.direction === 'BUY' ? `<span class="badge badge-buy">BUY</span>` : `<span class="badge badge-sell">SELL</span>`;
+            let percent = (t.pl / startBalance) * 100;
+            let plSign = percent > 0 ? '+' : '';
+            let plClass = percent >= 0 ? 'win-txt' : (isImport ? 'text-muted' : 'loss-txt');
+            let plDisplay = `${plSign}${percent.toFixed(2)}%`;
+            let linkIcon = (t.link && t.link !== "#" && t.link.length > 5) ? `<a href="${t.link}" target="_blank" class="link-icon">🔗</a>` : `<span style="opacity:0.2;">🔗</span>`;
+
+            body.innerHTML += `
+                <tr style="${isImport ? 'opacity:0.7; font-style:italic;' : ''}">
+                    <td style="color:var(--text-muted); font-size:0.9rem;">${t.date}</td>
+                    <td style="font-weight:700; color:white;">${t.pair}</td>
+                    <td>${badge}</td>
+                    <td style="color:var(--text-muted);">${t.risk}</td>
+                    <td style="color:var(--text-muted);">${t.rr}</td>
+                    <td class="${plClass}">${plDisplay}</td>
+                    <td style="color:var(--text-muted); font-style:italic;">${t.obs}</td>
+                    <td style="text-align:center;">${linkIcon}</td>
+                    <td><button class="btn-icon" style="color:var(--loss);" onclick="deleteTrade(${t.id})">🗑</button></td>
+                </tr>
+            `;
+        });
+
+        document.getElementById('stat-equity').innerText = `$${equity.toLocaleString()}`;
+        let totalPLPercent = (totalPL / startBalance) * 100;
+        let plSign = totalPLPercent > 0 ? '+' : '';
+        document.getElementById('stat-pl').innerText = `${plSign}${totalPLPercent.toFixed(2)}%`;
+        document.getElementById('stat-pl').className = "stat-val " + (totalPLPercent >= 0 ? 'win-txt' : 'loss-txt');
+
+        let wr = tradeCount > 0 ? ((wins / tradeCount) * 100).toFixed(1) : 0;
+        document.getElementById('stat-wr').innerText = wr + '%';
+
+        let growth = ((equity - startBalance) / startBalance) * 100;
+        if(growth < 0) {
+            let p = Math.min(Math.abs(growth) * 10, 100);
+            document.getElementById('dd-bar').style.width = p + "%";
+            document.getElementById('dd-val').innerText = growth.toFixed(2) + "%";
+        } else {
+            let p = Math.min(growth * 10, 100);
+            document.getElementById('pt-bar').style.width = p + "%";
+            document.getElementById('pt-val').innerText = "+" + growth.toFixed(2) + "%";
+        }
+    }
+
+    function showInputRow() {
+        const area = document.getElementById('input-area');
+        if(area.innerHTML) return;
+        const today = new Date().toISOString().split('T')[0];
+        area.innerHTML = `
+            <tr style="background: rgba(56, 189, 248, 0.1);">
+                <td><input id="n-date" type="date" value="${today}" class="tbl-input"></td>
+                <td><input id="n-pair" placeholder="EURUSD" class="tbl-input" style="text-transform:uppercase"></td>
+                <td><select id="n-dir" class="tbl-input"><option>BUY</option><option>SELL</option></select></td>
+                <td><input id="n-risk" value="1%" class="tbl-input"></td>
+                <td><input id="n-rr" value="1:2" class="tbl-input"></td>
+                <td><input id="n-pl" type="number" placeholder="-100 ($)" class="tbl-input"></td>
+                <td><input id="n-obs" placeholder="Notițe..." class="tbl-input"></td>
+                <td><input id="n-link" placeholder="URL..." class="tbl-input"></td>
+                <td>
+                    <button class="btn-icon" style="color:var(--win); margin-right:5px;" onclick="saveNewTrade()">✓</button>
+                    <button class="btn-icon" style="color:var(--loss);" onclick="document.getElementById('input-area').innerHTML=''">✕</button>
+                </td>
+            </tr>`;
+    }
+
+    async function saveNewTrade() {
+        const pair = document.getElementById('n-pair').value;
+        if(!pair) return;
+        const trade = {
+            date: document.getElementById('n-date').value, pair: pair.toUpperCase(), direction: document.getElementById('n-dir').value,
+            risk: document.getElementById('n-risk').value, rr: document.getElementById('n-rr').value, pl: parseFloat(document.getElementById('n-pl').value || 0),
+            obs: document.getElementById('n-obs').value, link: document.getElementById('n-link').value || "#"
+        };
+        await fetch(API_URL + '/trades/', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }, body: JSON.stringify(trade) });
+        document.getElementById('input-area').innerHTML = ''; loadTrades();
+    }
+
+    async function addSeparator() {
+        const monthNames = ["Ianuarie", "Februarie", "Martie", "Aprilie", "Mai", "Iunie", "Iulie", "August", "Septembrie", "Octombrie", "Noiembrie", "Decembrie"];
+        const currentMonth = monthNames[new Date().getMonth()];
+        const text = prompt("Numele Lunii:", currentMonth);
+        if(!text) return;
+        await fetch(API_URL + '/trades/', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token }, 
+        body: JSON.stringify({ date: "", pair: "SEPARATOR", direction: "-", risk: "-", rr: "-", pl: 0, obs: text, link: "" }) });
+        loadTrades();
+    }
+
+    /* --- EXPORT EXCEL (CSV) --- */
+    function exportExcel() {
+        if(!allTradesCache.length) { alert("Nu ai date de exportat!"); return; }
+        
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += "Data,Pereche,Directie,Risc,RR,Profit/Pierdere ($),Observatii,Link\n"; // Header
+
+        allTradesCache.forEach(t => {
+            if(t.pair === "SEPARATOR") return; // Nu exportăm separatoarele
+            let row = `${t.date},${t.pair},${t.direction},${t.risk},${t.rr},${t.pl},"${t.obs}",${t.link}`;
+            csvContent += row + "\n";
+        });
+
+        const encodedUri = encodeURI(csvContent);
+        const link = document.createElement("a");
+        link.setAttribute("href", encodedUri);
+        link.setAttribute("download", "jurnal_trading.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    async function deleteTrade(id) {
+        if(confirm("Ești sigur?")) {
+            await fetch(API_URL + `/trades/${id}`, { method: 'DELETE', headers: { 'Authorization': 'Bearer ' + token } });
+            loadTrades();
+        }
+    }
+</script>
+
+</body>
+</html>
